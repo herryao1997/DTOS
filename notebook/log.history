@@ -1,0 +1,291 @@
+ 7727  sudo apt install nasm
+ 7728  sudo apt install bximage
+ 7729  nasm boot.asm -o boot.bin
+ 7730  bximage a.img -q -fd -size=1.44
+ 7731  bximage a.img -q -fd=1.44
+ 7732  bximage a.img -q -fd=1.44m
+ 7733  ls
+ 7734  bximage a.img -q -fd -size=1.44
+ 7735  bximage --version
+ 7736  bximage -V
+ 7737  bximage
+ 7738  ls
+ 7739  dd if=boot.asm of=a.img bs=512 count=1 conv=notrunc
+ 7740  ls
+ 7741  cat boot.
+ 7742  cat boot.asm
+ 7743  ls
+ 7744  LS
+ 7745  ls
+ 7746  dolphin .
+ 7747  dd if=boot.asm of=a.img bs=512 count=1 conv=notrunc
+ 7748  nasm boot.asm -o boot.bin
+ 7749  bximage
+ 7750  dd if=boot.bin of=a.img bs=512 count=1 conv=notrunc
+ 7751  clion
+ 7752  exit
+ 7753  file DT.zip
+ 7754  stat DT.zip
+ 7755  exit
+ 7756  shutdown +60.
+ 7757  shutdown +60
+ 7758  uxplay
+ 7759  git init
+ 7760  git status
+ 7761  ls
+ 7762  cd ~
+ 7763  ls
+ 7764  rm -rf .ssh
+ 7765  ls -a
+ 7766  ssh-keygen -t rsa -b 4096 -C herryao1997
+ 7767  ssh -T git@github.com
+ 7768  git config --global user.name "herryao"
+ 7769  git config --global user.email "stevenyao@g.skku.edu"
+ 7770  dtds
+ 7771  ls
+ 7772  tree
+ 7773  ls
+ 7774  cd datastructure
+ 7775  ls
+ 7776  ls -a
+ 7777  rm -rf .git
+ 7778  ls .idea
+ 7779  ls
+ 7780  git init
+ 7781  git status
+ 7782  git log
+ 7783  git add .
+ 7784  git status
+ 7785  git commit -m "DTLib041201"
+ 7786  git remote add dtlib git@github.com:herryao1997/DTLib.git
+ 7787  git branch
+ 7788  git push -u dtlib master
+ 7789  ls
+ 7790  git branch
+ 7791  ls
+ 7792  cd ..
+ 7793  ls
+ 7794  cd ..
+ 7795  ls
+ 7796  cd ..
+ 7797  ls
+ 7798  cd DT_OS
+ 7799  ls
+ 7800  mkdir dtos_study
+ 7801  mv code dtos_study
+ 7802  mv notebook dtos_study
+ 7803  cd dtos_study
+ 7804  git init
+ 7805  git add .
+ 7806  git commit -m "DTOS041201"
+ 7807  git status
+ 7808  git remote add dtos git@github.com:herryao1997/DTOS.git
+ 7809  git push -u dtos master
+ 7810  exit
+ 7811  ls ~
+ 7812  tar -zxf bochs-2.6.8.tar.gz
+ 7813  ls
+ 7814  cd bochs-2.6.8
+ 7815  ls
+ 7816  ./configure --prefix=/home/herryao/Software/bochs --enable-debugger --enable-disasm --enable-iodebug --enable-x86-debugger --with-x --with-x11
+ 7817  sudo make -j
+ 7818  sudo make install -j
+ 7819  ls
+ 7820  cd ~/Software
+ 7821  ls
+ 7822  cd bochs
+ 7823  ls
+ 7824  cd bin
+ 7825  ls
+ 7826  vim ~/.zshrc
+ 7827  ls ~/Software
+ 7828  source ~/.zshrc
+ 7829  bochs
+ 7830  ls ~/Software/bochs/bin
+ 7831  source ~/.zshrc
+ 7832  bochs
+ 7833  ./bochs
+ 7834  history
+ 7835  ls
+ 7836  cd ..
+ 7837  ls
+ 7838  cd ..
+ 7839  ls
+ 7840  vim ~/.zshrc
+ 7841  vim ~/.bashrc
+ 7842  bochs
+ 7843  cd ~
+ 7844  bochs
+ 7845  vim ~/.bashrc
+ 7846  vim ~/.zshrc
+ 7847  ls /home/Software/bochs/bin/bochs
+ 7848  vim ~/.zshrc
+ 7849  source ~/.zshrc
+ 7850  bochs
+ 7851  htop
+ 7852  cd Software
+ 7853  ls
+ 7854  cd bochs
+ 7855  cd ..
+ 7856  chmod +x bochs
+ 7857  sudo chmod +x bochs
+ 7858  cd bochs
+ 7859  ls
+ 7860  sudo chmod 755 *
+ 7861  ls
+ 7862  cd ..
+ 7863  sudo chmod 755 *
+ 7864  ls
+ 7865  cd bochs
+ 7866  cd ..
+ 7867  ls -h bochs
+ 7868  ls -alh
+ 7869  sudo chown -R herryao:herryao bochs\n
+ 7870  ls -alh
+ 7871  bochs
+ 7872  exit
+ 7873  sudo apt install vgabios
+ 7874  whereis vgabios
+ 7875  which bochs
+ 7876  vim ~/.zshrc
+ 7877  ls /usr/share/vgabios/
+ 7878  vim ~/.zshrc
+ 7879  source ~/.zshrc
+ 7880  exit
+ 7881  ls
+ 7882  dtos
+ 7883  ls
+ 7884  cd dtos_study
+ 7885  ls
+ 7886  cd code
+ 7887  ls
+ 7888  mkdir lecture03
+ 7889  cd lecture03
+ 7890  vim bochsrc.txt
+ 7891  which bochs
+ 7892  cd /home/herryao/Software/bochs/bin/bochs\n
+ 7893  cd /home/herryao/Software/bochs/bin\n
+ 7894  cd ..
+ 7895  ls
+ 7896  cd share
+ 7897  ls
+ 7898  cd bochs
+ 7899  ls
+ 7900  dolphin .
+ 7901  whereis vgabios
+ 7902  ls
+ 7903  cd ..
+ 7904  ls
+ 7905  cd lecture02
+ 7906  ls
+ 7907  cp * ../lecture03
+ 7908  cd lecture03
+ 7909  cd ../lecture03
+ 7910  ls
+ 7911  cd -
+ 7912  cd ../lecture03
+ 7913  ls
+ 7914  bochs
+ 7915  vim bochsrc.txt
+ 7916  bochs
+ 7917  vim bochsrc.txt
+ 7918  bochs
+ 7919  ls
+ 7920  cat bochsrc.txt
+ 7921  ls
+ 7922  bochs
+ 7923  exit
+ 7924  of2306
+ 7925  foam
+ 7926  l
+ 7927  cloc .
+ 7928  cd ..
+ 7929  ls
+ 7930  ls -lh
+ 7931  ls
+ 7932  cd /opt
+ 7933  ls
+ 7934  cd ~
+ 7935  ls
+ 7936  foam
+ 7937  ls
+ 7938  tut
+ 7939  ls
+ 7940  ls -lh
+ 7941  cd ../
+ 7942  ls
+ 7943  cd ..
+ 7944  ls -lh
+ 7945  dtos
+ 7946  ls
+ 7947  cd dtos_study
+ 7948  ls
+ 7949  cd code
+ 7950  ls
+ 7951  cp -r lecture03 lecture04
+ 7952  cd lecture04
+ 7953  ls
+ 7954  vim bochsrc.txt
+ 7955  bximage
+ 7956  vim bochsrc.txt
+ 7957  bochs
+ 7958  exit
+ 7959  dtos
+ 7960  cd dtos_study
+ 7961  cd code
+ 7962  cd lecture04
+ 7963  ls
+ 7964  cd /mnt
+ 7965  ls
+ 7966  mkdir hgfs
+ 7967  sudo mkdir hgfs
+ 7968  exit
+ 7969  sudo mount -o loop data.img /mnt/hgfs
+ 7970  sudo vim test.txt
+ 7971  sudo vim loader.txt
+ 7972  sudo cp test.txt /mnt/hgfs
+ 7973  sudo cp loader.txt /mnt/hgfs
+ 7974  mv loader.txt loader.bin
+ 7975  sudo mv /mnt/hgfs/loader.txt /mnt/hgfs/loader.bin
+ 7976  ls /mnt/hgfs
+ 7977  sudo umount /mnt/hgfs
+ 7978  ls
+ 7979  vim data.img
+ 7980  ls
+ 7981  vim test.txt
+ 7982  cat test.txt
+ 7983  sudo mount -o loop data.img /mnt/hgfs
+ 7984  sudo mkdir /mnt/hgfs
+ 7985  sudo rmdir /mnt/hgfs
+ 7986  sudo mkdir /mnt/hgfs
+ 7987  sudo mount -o loop data.img /mnt/hgfs
+ 7988  ls
+ 7989  rm data.img
+ 7990  bximage
+ 7991  sudo mount -o loop data.img /mnt/hgfs
+ 7992  cat bochsrc.txt
+ 7993  bochs
+ 7994  sudo mount -o loop data.img /mnt/hgfs
+ 7995  cat test.txt
+ 7996  sudo cp loader.txt /mnt/hgfs
+ 7997  sudo cp loader.bin /mnt/hgfs
+ 7998  sudo cp test.txt /mnt/hgfs
+ 7999  sudo umount /mnt/hgfs
+ 8000  vim data.img
+ 8001  ls
+ 8002  rm data.img
+ 8003  bximage
+ 8004  bochs
+ 8005  ls
+ 8006  sudo mount -o loop data.img /mnt/hgfs
+ 8007  sudo cp test.txt /mnt/hgfs
+ 8008  sudo cp loader.bin /mnt/hgfs
+ 8009  sudo umount /mnt/hgfs
+ 8010  vim data.img
+ 8011  history
+ 8012  cat bochsrc.txt
+ 8013  ls
+ 8014  vim data.img
+ 8015  ls
+ 8016  exit
+ 8017  history

@@ -191,4 +191,233 @@
 
 ## 第三课：调试环境的搭建
 
+- 问题：如何调试主引导区的代码？
+
+- bochs （另外一款优秀的虚拟机软件）
+
+  - 专业模拟x86架构的虚拟机
+  - 开源且高度可移植，由c++编写完成
+  - 支持操作系统开发过程的断点调试
+  - 通过简单配置就能运行绝大多数主流的操作系统
+
+- 安装方式，由于本机为x64位的主机，因此参考网上配置（https://blog.csdn.net/qq_26822029/article/details/82734235）
+
+  - 首先在https://sourceforge.net/projects/bochs/files/bochs/2.6.8/下载源代码`[bochs-2.6.8.tar.gz]`
+
+  - 然后开始编译，指定了安装路径，最重要的是要打开`--enable-debugger --enable-disasm`
+
+  - 具体操作如下：
+
+  - ```sh
+    $ tar -zxf bochs-2.6.8.tar.gz
+    $ cd bochs-2.6.8
+    $ ./configure --prefix=/home/herryao/Software/bochs --enable-debugger \
+    $ --enable-disasm --enable-iodebug --enable-x86-debugger \
+    $ --with-x --with-x11
+    $ sudo make -j
+    $ sudo make install -j
+    ```
+
+  - 顺便输出一下环境变量，放在`.zshrc`下
+
+  - ```sh
+    export PATH="/home/herryao/Software/bochs/bin:$PATH"
+    ```
+
+- 小贴士：
+
+  - 确定bochs的安装路径（`which bochs`）
+  - 安装vgabios（`sudo apt install vgabios`）
+  - 确定vgabios的安装路径（`whereis vgabios `）
+
+- 调试环境的搭建
+
+- Bochs的启动文件
+
+- ```txt
+  ###############################################################
+  # Configuration file for Bochs
+  ###############################################################
+  
+  # how much memory the emulated machine will have
+  megs: 32
+  
+  # filename of ROM images
+  romimage: file=/home/herryao/Software/bochs/share/bochs/BIOS-bochs-latest
+  vgaromimage: file=/usr/share/vgabios/vgabios.bin
+  
+  # what disk images will be used
+  floppya: 1_44=a.img, status=inserted
+  
+  # choose the boot disk.
+  boot: floppy
+  
+  # where do we send log messages?
+  # log: bochsout.txt
+  
+  # disable the mouse
+  mouse: enabled=0
+  
+  # enable key mapping, using US layout as default.
+  # keyboard_mapping: enabled=1, map=/home/herryao/Software/bochs/share/bochs/keymaps/x11-pc-us.map
+  keyboard: type=mf, keymap=/home/herryao/Software/bochs/share/bochs/keymaps/x11-pc-us.map
+  
+  ```
+
+- `keyboard_mapping`和`map`应该是过期了，换成了`keyboard`和`keymap`。
+
+- 启动bochs虚拟机：
+
+  - 显示方式：`bochs -f bochsrc_file`
+  - 隐式方式：`bochs`命令会主动搜寻当前路径下的：
+    - `.bochsrc`
+    - `bochsrc`
+    - `bochsrc.txt`
+
+- bochs调试的常用命令，几乎同`gdb`一致
+
+- | 命令               | 功能                 | 示例          |
+  | ------------------ | -------------------- | ------------- |
+  | b(break)           | 设置断点             | b 0x7c00      |
+  | c(continue)        | 继续执行             | c             |
+  | s(step)            | 单步执行             | s             |
+  | info b(info break) | 查看当前所有断点     | info b        |
+  | info cpu           | 查看当前cpu状态      | info cpu      |
+  | r(reg)             | 查看当前寄存器状态   | r             |
+  | sreg               | 查看段寄存器状态     | sreg          |
+  | x/Nuf expression   | 查看内存中的数据     | x /2bx 0x7c00 |
+  | trace on[off]      | 开关：打印执行的指令 | trace on      |
+  | trace-reg on[off]  | 开关：打印寄存器的值 | trace-reg on  |
+
+- 小结
+
+  - Bochs是一款专业模拟x86架构的虚拟机
+  - 从源码安装Bochs可以获得调试功能
+  - Bochs的启动配置文件是正确运行的关键
+  - Bochs支持断点调试，其调试命令与GDB类似
+
+
+
+## 第四课：主引导程序的扩展（上）
+
+- 限制：主引导程序的代码不能超过512字节
+- 突破限制的思路
+  - 完成最基本的初始化工作
+  - 从存储介质中加载程序到内存中
+  - 将控制权交由新加载的程序执行
+
+![lecture_4_1](./fig_src/lecture_4/lecture_4_1.png)
+
+- 问题：主引导程序如何加载存储介质中的其他程序？
+  - 编程时我们可以通过系统调用直接读取文件
+  - 但是在直接运行在硬件上的程序没有操作系统支持
+  - 解决方案，文件系统。
+- 文件系统
+  - 存储介质上组织文件数据的方法（数据组织的方法）
+  - FAT12文件格式：（基于软盘系统，已经被舍弃，目前只用于学习使用）
+    - 数据区
+    - 根目录区
+    - FAT2
+    - FAT1
+    - 引导扇区
+- 文件系统示例
+  - FAT1同FAT2几乎没有区别，两者相互备份协同使用
+  - FAT12 是DOS时代的早期文件系统
+  - FAT12结构非常简单，一直沿用于软盘
+  - FAT12的基本组织单位
+    - 字节（byte）：基本数据单位
+    - 扇区（sector）：磁盘中的最小数据单元（512 byte）
+    - 簇（cluster）：一个或多个扇区
+
+- 解决方案
+
+  - 使用FAT12对虚拟软盘（data.img）进行格式化
+  - 编写可执行程序（loader），并将其拷贝到软盘中
+  - 主引导程序（boot）在文件系统中查找loader
+  - 将loader复制到内存中，并跳转到入口执行
+
+- 编程实验一：往虚拟软盘中写入文件
+
+  - 原材料：FreeDos，Bochs，bximage
+
+  - 步骤
+
+    - 创建虚拟软盘`data.img`
+    - 在FreeDos中进行格式化（`FAT12`）
+    - 将`data.img`挂在到linux中，并写入文件
+
+  - 使用`freedos.img`镜像作为格式化的工具，`A：`盘
+
+  - 添加了一个用于存储FAT 文件的fd镜像`data.img`作为`B：`盘
+
+  - 其余设置不变，修改后的`bochsrc.txt`文件内容如下：
+
+  - ```txt
+    ###############################################################
+    # Configuration file for Bochs
+    ###############################################################
+    
+    # how much memory the emulated machine will have
+    megs: 32
+    
+    # filename of ROM images
+    romimage: file=/home/herryao/Software/bochs/share/bochs/BIOS-bochs-latest
+    vgaromimage: file=/usr/share/vgabios/vgabios.bin
+    
+    # what disk images will be used
+    floppya: 1_44=freedos.img, status=inserted
+    floppyb: 1_44=data.img, status=inserted
+    
+    # choose the boot disk.
+    boot: floppy
+    
+    # where do we send log messages?
+    # log: bochsout.txt
+    
+    # disable the mouse
+    mouse: enabled=0
+    
+    # enable key mapping, using US layout as default.
+    # keyboard_mapping: enabled=1, map=/home/herryao/Software/bochs/share/bochs/keymaps/x11-pc-us.map
+    keyboard: type=mf, keymap=/home/herryao/Software/bochs/share/bochs/keymaps/x11-pc-us.map
+    ```
+
+  - 具体在terminal中的操作如下，软件内部操作省略。
+
+  - ```bash
+    $ bximage	#creat one fd image file named data.img
+    $ bochs		#open the free dos, format the B: within the freedos
+    $ sudo mkdir /mnt/hgfs	#create one folder for mount
+    $ sudo mount -o loop data.img /mnt/hgfs
+    $ vim test.txt	#input test data
+    $ vim loader.bin	#input loader data
+    $ sudo cp test.txt /mnt/hgfs
+    $ sudo cp loader.bin /mnt/hgfs #copy the test files into the image files, then check in the bochs
+    $ sudo umount /mnt/hgfs	#unmount the image
+    $ vim data.img	#check the FAT12 file, using :%!xxd to check the binary file, using '/' to check if the data input existing in the FAT12 file
+    ```
+
+- 深入FAT12文件系统
+
+  - FAT12文件系统由引导区，FAT表，根目录表以及文件数据区组成。
+
+  - | 扇区位置 |     长度     |    内容    |
+    | :------: | :----------: | :--------: |
+    |    0     |  1（512 B）  |  引导程序  |
+    |    1     | 9（4608 B）  |   FAT表1   |
+    |    10    | 9（4608 B）  |   FAT表2   |
+    |    19    | 14（9728 B） | 目录文件项 |
+    |    33    |     ---      |  文件数据  |
+
+- FAT12的主引导区
+
+  - 主引导区存储的比较重要的信息是`文件系统的类型`，`文件系统逻辑扇区总数`，`每簇包含的扇区数`等。
+  - 主引导区最后以`0x55aa` 两个字节作为结束，共占用一个扇区。
+  - ![lecture_4_2](./fig_src/lecture_4/lecture_4_2.png)
+
+- 编程实验二：读取data.img中的文件系统信息
+- 步骤：
+  - 创建Fat12Header结构体类型
+  - 使用文件流读取前512字节的内容（第0扇区）
+  - 解析并打印相关的信息
 - 
