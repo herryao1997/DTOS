@@ -416,8 +416,164 @@
   - ![lecture_4_2](./fig_src/lecture_4/lecture_4_2.png)
 
 - 编程实验二：读取data.img中的文件系统信息
+- `QT实验`
 - 步骤：
   - 创建Fat12Header结构体类型
   - 使用文件流读取前512字节的内容（第0扇区）
   - 解析并打印相关的信息
-- 
+- 将`bochsrc.txt`里面的内容修改，把data.img设置为启动盘然后运行
+- ```txt
+  ###############################################################
+  # Configuration file for Bochs
+  ###############################################################
+  
+  # how much memory the emulated machine will have
+  megs: 32
+  
+  # filename of ROM images
+  romimage: file=/home/herryao/Software/bochs/share/bochs/BIOS-bochs-latest
+  vgaromimage: file=/usr/share/vgabios/vgabios.bin
+  
+  # what disk images will be used
+  #floppya: 1_44=freedos.img, status=inserted
+  floppya: 1_44=data.img, status=inserted
+  #floppyb: 1_44=data.img, status=inserted
+  
+  # choose the boot disk.
+  boot: floppy
+  
+  # where do we send log messages?
+  # log: bochsout.txt
+  
+  # disable the mouse
+  mouse: enabled=0
+  
+  # enable key mapping, using US layout as default.
+  # keyboard_mapping: enabled=1, map=/home/herryao/Software/bochs/share/bochs/keymaps/x11-pc-us.map
+  keyboard: type=mf, keymap=/home/herryao/Software/bochs/share/bochs/keymaps/x11-pc-us.map
+  
+  ```
+- 实验结论
+
+  - 发现运行bochs后，存在一个系统，这说明FreeDos中的format程序在格式化软盘是自动在其第0扇区生成了一个主引导程序，这个主引导程序只负责打印一个字符串。
+  - 文件格式和文件系统都是定义数据如何存放的规则，只要遵循这个规则就可以成功读写目标数据。
+- 小结
+
+  - 主引导程序的代码不能超过512字节
+  - 可以通过主引导程序加载新程序的方式突破限制
+  - 加载心程序需要依赖于文件系统
+  - FAT12是一种早起用于软盘的简单文件系统
+  - FAT12文件系统的重要信息存储于0扇区
+
+## 第五课：主引导程序的扩展（下）
+
+- 问题：如何在FAT12根目录中查找是否存在目标文件？
+
+- 根目录去的大小和位置
+
+- 大小：$\frac{BPB\_RootEntCnt * sizeof(RootEntry)}{BPB_BytsPerSec}$
+
+- | 扇区位置 |     长度     |    内容    |
+  | :------: | :----------: | :--------: |
+  |    0     |  1（512 B）  |  引导程序  |
+  |    1     | 9（4608 B）  |   FAT表1   |
+  |    10    | 9（4608 B）  |   FAT表2   |
+  |    19    | 14（9728 B） | 目录文件项 |
+  |    33    |     ---      |  文件数据  |
+
+- `目录文件项`中包含所有文件的信息，包含文件的大小，文件的修改日期
+
+- FAT12文件系统中的根目录区
+
+  - 根目录区由目录项构成，每一个目录项代表根目录中的一个文件索引。
+
+  - | 数据成员     | 偏移 | 长度 | 描述                     |
+    | ------------ | ---- | ---- | ------------------------ |
+    | DIR_Name     | 0x00 | 0x0B | 文件名8字节，扩展名2字节 |
+    | DIR_Attr     | 0x0B | 0x01 | 文件属性                 |
+    | Reserve      | 0x0C | 0x0A | 保留位                   |
+    | DIR_WrtTime  | 0x16 | 0x02 | 最后一次写入时间         |
+    | DIR_WrtDate  | 0x18 | 0x02 | 最后一次写入日期         |
+    | DIR_FstClus  | 0x1A | 0x02 | 文件开始的簇号           |
+    | DIR_FileSize | 0x1C | 0x04 | 文件大小                 |
+
+- 编程实验：读取FAT12文件系统的根目录信息
+
+- 步骤
+
+  - 创建RootEntry结构体类型
+  - 使用文件流顺序读取每个目录项的内容
+  - 解析并打印相关的信息
+
+- `QT实验`
+
+- 目录项中的关键成员
+
+  - DIR_Name
+    - 文件名（用于判断是否位目标文件）
+  - DIR_FstClus
+    - 文件数据起始存储位置（用于确定读取位置）
+  - DIR_FileSize
+    - 文件大小（用于确定读取的字节数）
+
+- 在FAT12中一个簇只有一个扇区，意味着一个簇只有512字节，但是一般而言文件都会大雨512字节，那么在FAT12中是如何解决这一问题的呢？
+
+- 在分布排列的簇中，每个簇不一定是按顺序连续排列的，很有可能是分散开来的，因此对于簇的排列就很重要，解决方案（FAT表）
+
+- FAT表-FAT12的数据组织核心
+
+  - FAT1和FAT2是相互备份的关系，数据内容完全一致
+  - FAT表是一个关系图，记录了文件数据的先后关系
+  - 每一个FAT表暂用12bit（1.5字节，源自于历史原因）
+  - **FAT表的前两个表项规定不使用**
+
+- FAT表中的先后关系
+
+  - 以簇（扇区）为单位存储文件数据
+  - 每个表项（vec[i]）表示文件数据的实际位置
+    - DIR_FstClus表示文件第0簇（扇区）的位置
+    - vec[DIR_FstClus]表示文件第1簇（扇区）的位置
+    - vec[vec[DIR_FstClus]]表示文件第2簇（扇区）的位置
+    - 以此类推。。。。。。
+
+- FAT数据逻辑示意图一
+
+- FAT数据逻辑示意图二（链表）
+
+- 编程实验二：加载FAT12中的文件数据
+
+- 步骤
+
+  - 在根目录中查找目标文件对应的项
+  - 获取目标文件的其实簇号和文件大小
+  - 根据FAT表中记录的逻辑先后关系读取数据
+
+- 小贴士一
+
+  - FAR表中每个表项只占用12比特（1.5字节）
+  - FAT表一共记录了BPB_BytsPerSec\*9/1.5个表项
+  - 可以使用一个short（2byte）表示一个表项的值
+  - 如果表项值大于等于0xFF8，则说明已经到达最后一个簇
+  - 如果表项值等于0xFF7则说明当前簇已经损坏
+
+- 小贴士二
+
+  - 数据区起始簇（扇区）为33,地址为0x4200
+  - 数据区其实地址所对应的编号为2（不为0）[FAT表中第一第二表项不可使用]
+  - 因此，DIR_FstClus对应的地址为：
+    - 0x4200 + (DIR_FstClus - 2) * 512
+
+- QT实验
+
+- 小结
+
+  - FAT12根目录区记录了文件的起始簇号和长度
+  - 通过查找根目录区能够确定是否存在目标文件
+  - FAT12文件数据的组织使用了单链表的思想
+    - 文件数据离散的分布于存储介质中
+    - 文件数据通过FAT项进行关联
+
+## 第六课：突破512字节限制（上）
+
+
+
